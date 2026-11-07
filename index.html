@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark"><meta name="theme-color" content="#6a4cff"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><title>Maths Adventure – The Lost Kingdom</title>
+<style>
+:root{--bg:#fff6e0;--c:#fff;--t:#2a2350;--p:#6a4cff;--pd:#4b32c9;--g:#22b573;--gd:#168a56;--r:#ef4b4b;--y:#ffc233;--b:#e3dcf5;--sh:0 6px 0 #0001,0 10px 24px #2a235022}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1740;--c:#2a2360;--t:#f4f0ff;--p:#8b72ff;--pd:#5b43d6;--b:#41398a}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font:600 18px/1.5 ui-rounded,"Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;background:var(--bg);color:var(--t);background-image:radial-gradient(circle at 8% 0,#ffc23355,transparent 38%),radial-gradient(circle at 95% 15%,#6a4cff26,transparent 40%)}
+nav{display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:linear-gradient(90deg,#6a4cff,#ff7ab8);position:sticky;top:0;z-index:5;box-shadow:0 3px 12px #0003}
+button,select,input{font:inherit;color:inherit}
+button{min-height:48px;padding:8px 18px;border:0;border-radius:16px;background:var(--p);color:#fff;cursor:pointer;font-weight:700;box-shadow:0 5px 0 var(--pd);transition:transform .08s,box-shadow .08s}
+button:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 var(--pd)}
+nav button{background:#ffffff38;box-shadow:0 4px 0 #0002}
+button:focus-visible,input:focus-visible,select:focus-visible,.node:focus-visible{outline:4px solid var(--y);outline-offset:2px}
+button.o{background:var(--c);color:var(--t);border:3px solid var(--b);box-shadow:0 5px 0 var(--b)}button.g{background:var(--g);box-shadow:0 5px 0 var(--gd)}button:disabled{cursor:default}
+main{max-width:760px;margin:auto;padding:12px}
+.card{background:var(--c);border-radius:24px;padding:16px;margin:14px 0;box-shadow:var(--sh)}
+.hero{background:linear-gradient(135deg,#6a4cff,#ff7ab8);color:#fff;border-radius:28px;padding:20px;text-align:center;box-shadow:var(--sh);margin-top:14px}
+.hero h1{margin:.1em 0;font-size:34px;text-shadow:0 3px 0 #0003}.mascot{font-size:88px;line-height:1.1;animation:bob 2.4s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-8px)}}
+.chip{display:inline-block;background:var(--c);color:var(--t);border-radius:99px;padding:4px 16px;margin:3px;box-shadow:0 3px 0 #0002}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opts button{display:flex;align-items:center;gap:10px;text-align:left;background:var(--c);color:var(--t);border:3px solid var(--b);box-shadow:0 5px 0 var(--b);font-size:22px}
+.opts b{background:var(--y);color:#3b2a00;border-radius:10px;min-width:34px;height:34px;display:grid;place-items:center;font-size:18px}
+.opts button.ok,.ok{background:#c6f3da!important;border-color:var(--g)!important;color:#064!important}
+.opts button.no{background:#ffd5d1!important;border-color:var(--r)!important;color:#700!important}
+.big{font-size:24px;font-weight:800}.bar{height:16px;border-radius:9px;background:var(--b);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--g),#7be0a8);transition:width .4s}
+.raja{display:flex;gap:10px;align-items:center}.raja span{font-size:52px}.raja p{margin:0;background:var(--bg);border-radius:18px;padding:8px 14px}
+input{min-height:48px;padding:6px 14px;border-radius:14px;border:3px solid var(--b);background:var(--c);width:100%}
+.mapwrap{border-radius:28px;overflow:hidden;box-shadow:var(--sh);background:linear-gradient(#8fd3ff,#d9f5ff 38%,#b7ecb0 39%,#6fcf7a)}.node{cursor:pointer}
+.cf{position:fixed;top:-30px;font-size:28px;animation:f 3s linear forwards;pointer-events:none;z-index:9}@keyframes f{to{transform:translateY(110vh) rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.cf{display:none}.mascot{animation:none}}
+table{width:100%;border-collapse:collapse}td,th{padding:6px;border-bottom:2px solid var(--b);text-align:left}.weak{color:var(--r);font-weight:800}
+.cert{border:8px double #b8860b;text-align:center;padding:24px;background:#fffbea;color:#3b2d00}
+@media(max-width:480px){.opts{grid-template-columns:1fr}}@media print{.np,nav{display:none!important}body{background:#fff}}
+</style></head><body>
+<nav class="np" id="nav"></nav><main id="app"></main>
+<script>
+/* ===== Helpers ===== */
+const $=s=>document.querySelector(s),R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),P=a=>a[R(0,a.length-1)];
+const gcd=(a,b)=>b?gcd(b,a%b):a,lcm=(a,b)=>a/gcd(a,b)*b;
+const shuf=a=>{a=[...a];for(let i=a.length-1;i;i--){let j=R(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const cl=x=>String(+x.toFixed(6)),fm=n=>n.toLocaleString('en-US');
+const val=s=>{let p=String(s).split(/[\/:]/);return p.length==2?p[0]/p[1]:parseFloat(s)};
+const simp=(n,d)=>{let g=gcd(n,d);n/=g;d/=g;return d==1?String(n):n+'/'+d};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
+const show=x=>(/^-?\d+$/.test(x)?(+x).toLocaleString('en-US'):x).replace('-','−');
+/* ===== Question builders: answers are always computed, never typed in ===== */
+function mk(q,a,w,h,e,s){a=String(a);let o=[...new Set(w.map(String))].filter(x=>x!==a&&Math.abs(val(x)-val(a))>1e-9),k=1;
+ while(o.length<3&&k<80){let c=a.includes('/')?R(1,9)+'/'+R(2,12):a.includes(':')?R(1,9)+':'+R(1,9):a.endsWith('%')?cl(parseFloat(a)+(k%2?k:-k)*5)+'%':cl(+a+(k%2?k:-k));k++;
+  if(c!==a&&!o.includes(c)&&Math.abs(val(c)-val(a))>1e-9)o.push(c)}
+ return{t:'mc',q,a,o:shuf([a,...o.slice(0,3)]),h,e,s}}
+const mkN=(q,a,h,e,s)=>({t:'num',q,a:String(a),h,e,s});
+const mkT=(q,b,h,e)=>({t:'tf',q,a:b?'True':'False',o:['True','False'],h,e});
+/* ===== SVG visuals ===== */
+const pie=(d,n)=>{let p='';for(let i=0;i<d;i++){let a=i*6.2832/d-1.5708,b=(i+1)*6.2832/d-1.5708;
+ p+=`<path d="M60 60L${60+50*Math.cos(a)} ${60+50*Math.sin(a)}A50 50 0 0 1 ${60+50*Math.cos(b)} ${60+50*Math.sin(b)}Z" fill="${i<n?'#ccc':'#f4a23c'}" stroke="#fff" stroke-width="2"/>`}
+ return`<svg width="130" height="130" viewBox="0 0 120 120" role="img" aria-label="Pizza with ${d} slices, ${n} eaten (grey)">${p}</svg>`};
+const bars=(nm,v)=>{let m=Math.max(...v);return`<svg viewBox="0 0 260 150" width="100%" style="max-width:340px" role="img" aria-label="Bar graph of runs">${v.map((x,i)=>{let h=x/m*90;
+ return`<rect x="${20+i*60}" y="${115-h}" width="40" height="${h}" fill="#5b8def"/><text x="${40+i*60}" y="${110-h}" text-anchor="middle" font-size="13" fill="currentColor">${x}</text><text x="${40+i*60}" y="134" text-anchor="middle" font-size="12" fill="currentColor">${nm[i]}</text>`}).join('')}<line x1="10" y1="115" x2="255" y2="115" stroke="currentColor"/></svg>`};
+const rect=(l,w)=>{let W=l*10,H=Math.min(100,w*8);return`<svg viewBox="0 0 260 150" width="260" role="img" aria-label="Rectangle ${l} by ${w}"><rect x="20" y="25" width="${W}" height="${H}" fill="#cfe3ff" stroke="#5b3fd1" stroke-width="3"/><text x="${20+W/2}" y="17" text-anchor="middle" fill="currentColor" font-size="13">${l} cm</text><text x="${26+W}" y="${25+H/2}" fill="currentColor" font-size="13">${w} cm</text></svg>`};
+/* ===== Regions and question templates (t=0 easy, t=1 harder) ===== */
+const REG=[['Number Maze','🧭','#e08a00'],['Code Vault','🔐','#7a5af8'],['Pizza Palace','🍕','#e8553a'],['Market Bazaar','🛒','#1f9d62'],['Ratio River','🌊','#1f8fcf'],['Algebra Forest','🌲','#37893f'],['Castle Builder','🏰','#a24fd6'],['Detective Office','🕵️','#c23b32']];
+const RU=['Pehle × ÷ karein, phir + −. Integers ke liye number line use karein.','Factors ki list banayein. HCF sab se bara common factor hota hai.','Fractions jama karne se pehle neeche wale number barabar karein.','Decimal point ko ek line mein rakhein. Change = diye hue paise − qeemat.','Ratio ko HCF se divide karke chhota karein.','Ulta amal karein: + ka ulta −, × ka ulta ÷.','Triangle ke angles ka jama 180° hota hai. Area = l × w.','Mean = total ÷ ginti. Mode = sab se zyada aane wala number.'];
+const GEN=[
+[t=>{let n=R(1000,t?99999:9999),s=String(n),i,d;do{i=R(0,s.length-1);d=+s[i]}while(!d);let a=d*10**(s.length-1-i);
+  return mk(`What is the value of the digit ${d} in ${fm(n)}?`,a,[a*10,a*100,d,a===d?d*1000:a/10],'Count the places from the right: ones, tens, hundreds, thousands…',`Digit ${d} is in the ${fm(a)} place, so its value is ${d} × ${fm(a/d)} = ${fm(a)}.`)},
+ t=>{let n=R(1200,t?99999:9999),p=P(t?[10,100,1000]:[10,100]),a=Math.round(n/p)*p;
+  return mk(`Round ${fm(n)} to the nearest ${p}.`,a,[Math.floor(n/p)*p,Math.ceil(n/p)*p,a+p,Math.round(n/p/10)*p*10],'Look at the digit to the right. 5 or more: round up. 4 or less: stay.',`Look at the digit after the ${p}s place and decide to round up or down. Answer: ${fm(a)}.`)},
+ t=>{let a=R(2,20),b=R(2,9),c=R(2,9),d=R(1,a),r=t?a+b*c-d:a+b*c;
+  return mk(`Work out: ${a} + ${b} × ${c}${t?' − '+d:''}`,r,t?[(a+b)*c-d,a+b+c-d,a*b+c-d,r+d]:[(a+b)*c,a*b+c,a+b+c,r+b],'BODMAS: do × and ÷ before + and −.',`First ${b} × ${c} = ${b*c}. Then ${a} + ${b*c}${t?' − '+d:''} = ${r}.`)},
+ t=>{let a=R(-12,12),b=R(-12,12),op=P(['+','−']),r=op=='+'?a+b:a-b,f=n=>n<0?`(−${-n})`:n;
+  return mk(`Work out: ${f(a)} ${op} ${f(b)}`,r,[op=='+'?a-b:a+b,-r,Math.abs(a)+Math.abs(b),r+2],'Use a number line. Subtracting a negative is the same as adding a positive.',`${f(a)} ${op} ${f(b)} = ${r<0?'−'+(-r):r}.`)}],
+[t=>{let g=P([2,3,4,5,6,7]),x=R(2,6),y=R(2,6);if(x==y)y++;let a=g*x,b=g*y,h=gcd(a,b);
+  return mk(`Find the HCF of ${a} and ${b}.`,h,[lcm(a,b),Math.min(a,b),h*2,h+1],'List the factors of both numbers. The biggest common one is the HCF.',`The biggest number that divides both ${a} and ${b} is ${h}. HCF = ${h}.`)},
+ t=>{let a=R(2,t?15:9),b=R(2,t?15:9);if(a==b)b++;let l=lcm(a,b);
+  return mk(`Find the LCM of ${a} and ${b}.`,l,[a*b,gcd(a,b),a+b,l*2],'List multiples of both numbers until you find the first shared one.',`The first multiple shared by ${a} and ${b} is ${l}. LCM = ${l}.`)},
+ t=>{let n=R(11,70+t*30),f=[...Array(n)].map((_,i)=>i+2).find(k=>n%k==0),p=f==n;
+  return mkT(`True or false: ${n} is a prime number.`,p,'A prime number has exactly two factors: 1 and itself.',p?`${n} has no factors except 1 and ${n}, so it is prime.`:`${n} ÷ ${f} = ${n/f}, so ${n} has more than two factors. It is not prime.`)},
+ t=>{let n=R(2,12+t*4);return Math.random()<.5?mk(`What is √${n*n}?`,n,[n*2,n+1,n-1,n*n/2|0],'Which number times itself gives this number?',`${n} × ${n} = ${n*n}, so √${n*n} = ${n}.`):mk(`What is ${n}²?`,n*n,[n*2,n*n+n,n*n-n,(n+1)**2],'Squared means multiplied by itself.',`${n}² = ${n} × ${n} = ${n*n}.`)}],
+[t=>{let d=P([4,5,6,8,10]),n=R(1,d-1),a=simp(d-n,d);
+  return mk(`Ali ate ${n}/${d} of a pizza. What fraction is left?`,a,[`${n}/${d}`,`${d-n}/${d+1}`,`${n}/${d-n}`,`${d-n+1}/${d}`],'The whole pizza is d/d. Take away the slices that were eaten.',`Whole = ${d}/${d}, eaten = ${n}/${d}. Left = ${d}/${d} − ${n}/${d} = ${d-n}/${d}${a!=(d-n)+'/'+d?' = '+a:''}.`,pie(d,n))},
+ t=>{let d=P([2,3,4,5,8,10]),n=R(1,d-1),k=R(2,t?12:8),T=d*k,a=k*n;
+  return mk(`What is ${n}/${d} of Rs ${T}?`,a,[k,T-a,a+d,n*d],'Divide by the bottom number, then multiply by the top number.',`${T} ÷ ${d} = ${k}. Then ${k} × ${n} = ${a}.`)},
+ t=>{let d=P([2,3,4,5]),n=R(1,d-1),k=R(2,t?9:5);
+  return mkN(`Fill in the missing number: ${n}/${d} = ?/${d*k}`,n*k,'Multiply the top and the bottom by the same number.',`${d} × ${k} = ${d*k}, so the top is ${n} × ${k} = ${n*k}.`)},
+ t=>{let d1=P([2,3,4]),d2=P([3,5,6]),a=R(1,d1-1),c=R(1,d2-1),nn=a*d2+c*d1,dd=d1*d2,r=simp(nn,dd);
+  return mk(`Work out: ${a}/${d1} + ${c}/${d2}`,r,[`${a+c}/${d1+d2}`,`${a+c}/${dd}`,`${nn}/${d1+d2}`,simp(nn+1,dd)],'Make the bottom numbers the same first. Never add the bottoms!',`Common bottom = ${dd}. ${a*d2}/${dd} + ${c*d1}/${dd} = ${nn}/${dd}${r!=nn+'/'+dd?' = '+r:''}.`)}],
+[t=>{let c1=R(500,9999),c2=R(500,9999),f=c=>(c/100).toFixed(2),s=c1+c2;
+  return mk(`Hamza buys a juice for Rs ${f(c1)} and samosas for Rs ${f(c2)}. How much does he pay in total?`,f(s),[f(s+100),f(s-100),f(s+10),f(s-10)],'Line up the decimal points, then add.',`${f(c1)} + ${f(c2)} = ${f(s)}.`)},
+ t=>{let pay=P([100,200,500]),c=R(1500,pay*100-500),f=x=>(x/100).toFixed(2),ch=pay*100-c;
+  return mk(`A notebook costs Rs ${f(c)}. Sara pays Rs ${pay}. How much change does she get?`,f(ch),[f(c),f(ch+100),f(ch-100),f(pay*100+c)],'Change = money paid − price.',`${pay}.00 − ${f(c)} = ${f(ch)}.`)},
+ t=>{let n=R(11,9999),m=P([10,100,1000]),mul=Math.random()<.5,a=cl(mul?n*m/100:n/(100*m));
+  return mkN(`${cl(n/100)} ${mul?'×':'÷'} ${m} = ?`,a,`${mul?'Multiplying':'Dividing'}: move the decimal point ${String(m).length-1} place(s) ${mul?'right':'left'}.`,`${cl(n/100)} ${mul?'×':'÷'} ${m} = ${a}.`)},
+ t=>Math.random()<.5?(()=>{let p=P([5,10,20,25,50,75]),b=20*R(1,t?20:10),a=p*b/100;
+  return mk(`What is ${p}% of Rs ${b}?`,a,[b-a,p,a*2,a+10],'Percent means "out of 100". 10% = ÷10, 50% = ÷2, 25% = ÷4.',`${p}% of ${b} = ${p}/100 × ${b} = ${a}.`)})():(()=>{let d=P([2,4,5,10,20,25]),n=R(1,d-1),a=n*100/d;
+  return mk(`Write ${n}/${d} as a percentage.`,a+'%',[n*d+'%',(100-a)+'%',n+'%',a/2+'%'],'Divide top by bottom, then multiply by 100.',`${n} ÷ ${d} × 100 = ${a}%.`)})()],
+[t=>{let x=R(1,7),y=R(1,9),g=R(2,t?9:6);while(gcd(x,y)>1||x==y){y=R(1,9);x=R(1,7)}let a=x*g,b=y*g,r=x+':'+y;
+  return mk(`Write the ratio ${a} : ${b} in its simplest form.`,r,[y+':'+x,(x+1)+':'+y,x+':'+(y+1),x+':'+y*2],'Divide both numbers by their HCF.',`HCF of ${a} and ${b} is ${g}. ${a} ÷ ${g} = ${x} and ${b} ÷ ${g} = ${y}. Ratio = ${r}.`)},
+ t=>{let x=R(1,5),y=R(1,6),k=R(2,t?20:10);while(x==y)y=R(1,6);let T=k*(x+y),a=k*y;
+  return mk(`Ali and Sara share Rs ${T} in the ratio ${x} : ${y}. How much does Sara get?`,a,[k*x,Math.round(T/y),k,T-a+k],'Add the ratio parts, find one part, then multiply.',`Parts = ${x} + ${y} = ${x+y}. One part = ${T} ÷ ${x+y} = ${k}. Sara = ${y} × ${k} = Rs ${a}.`)},
+ t=>{let u=R(5,t?45:20),n=R(2,6),m=R(n+1,12);
+  return mk(`${n} pens cost Rs ${n*u}. How much do ${m} pens cost?`,m*u,[n*u+m-n,n*u*m,m+u,u],'First find the cost of 1 pen.',`1 pen = ${n*u} ÷ ${n} = Rs ${u}. ${m} pens = ${m} × ${u} = Rs ${m*u}.`)}],
+[t=>{let a=R(2,20),d=R(2,9),s=t?[a,a*2,a*4,a*8]:[a,a+d,a+2*d,a+3*d],nx=t?a*16:a+4*d,st=t?'× 2':'+ '+d;
+  return mk(`Find the next number: ${s.join(', ')}, ?`,nx,t?[nx/2,nx+a,nx-1,nx+2]:[nx+d,nx-d,nx+1,nx-1],'Find what is added (or multiplied) each time.',`Rule: ${st}. Next = ${s[3]} ${st.replace('+ ','+ ')} = ${nx}.`)},
+ t=>{let x=R(2,15),m=t?R(2,6):1,c=R(1,20),b=m*x+c;
+  return mkN(`Find x: ${m>1?m+'x':'x'} + ${c} = ${b}`,x,'Undo the + first, then undo the ×.',`${b} − ${c} = ${b-c}${m>1?`. Then ${b-c} ÷ ${m} = ${x}`:''}. So x = ${x}.`)},
+ t=>{let x=R(2,9),m=R(2,9),c=R(1,15);
+  return mk(`If x = ${x}, what is ${m}x + ${c}?`,m*x+c,[m+x+c,m*(x+c),m*x-c,m*x+c+1],'Replace x with the number. Remember: 4x means 4 × x.',`${m}x = ${m} × ${x} = ${m*x}. Then ${m*x} + ${c} = ${m*x+c}.`)}],
+[t=>{let a=R(30,100),b=R(30,Math.min(120,150-a)),c=180-a-b;
+  return mk(`Two angles of a triangle are ${a}° and ${b}°. What is the third angle?`,c,[360-a-b,a+b,180-a,c+10],'The angles in a triangle add up to 180°.',`${a} + ${b} = ${a+b}. Then 180 − ${a+b} = ${c}°.`)},
+ t=>{let l=R(4,t?20:12),w=R(2,l-1),ar=Math.random()<.5,A=l*w,Pm=2*(l+w);
+  return mk(`A castle courtyard is ${l} cm long and ${w} cm wide. Find its ${ar?'area':'perimeter'}.`,ar?A:Pm,ar?[Pm,l+w,2*A,A+l]:[A,l+w,2*l+w,Pm+2],ar?'Area of a rectangle = length × width.':'Perimeter = 2 × (length + width).',ar?`${l} × ${w} = ${A} cm².`:`2 × (${l} + ${w}) = 2 × ${l+w} = ${Pm} cm.`,rect(l,w))},
+ t=>{let a=R(30,90),b=R(30,70),c=180-a-b+(Math.random()<.5?0:P([-15,-10,10,15])),ok=a+b+c==180;
+  return mkT(`True or false: a triangle can have angles ${a}°, ${b}° and ${c}°.`,ok,'The three angles must add up to exactly 180°.',`${a} + ${b} + ${c} = ${a+b+c}. ${ok?'That is 180°, so it is true.':'That is not 180°, so it is false.'}`)}],
+[t=>{let m=R(18,35),v=[0,0,0,0].map(()=>R(m-4,m+4));v.push(5*m-v.reduce((x,y)=>x+y));
+  return mkN(`Find the mean of: ${v.join(', ')}.`,m,'Mean = total ÷ how many numbers.',`Total = ${5*m}. There are 5 numbers. Mean = ${5*m} ÷ 5 = ${m}.`)},
+ t=>{let md=R(2,30),o=[];while(o.length<4){let x=R(1,40);if(x!=md&&!o.includes(x))o.push(x)}
+  return mk(`Find the mode: ${shuf([md,md,md,...o]).join(', ')}.`,md,o,'The mode is the number that appears most often.',`${md} appears 3 times, more than any other number. Mode = ${md}.`)},
+ t=>{let x=R(2,15),[u,v,f]=P([['km','m',1000],['m','cm',100],['kg','g',1000],['L','mL',1000]]);
+  return mk(`Convert ${x} ${u} to ${v}.`,x*f,[x*f*10,x*f/10,x*(f==100?10:100),x+f],`1 ${u} = ${f} ${v}. So multiply by ${f}.`,`${x} × ${f} = ${x*f} ${v}.`)},
+ t=>{let nm=['Ali','Sara','Zoya','Omar'],v=[0,0,0,0].map(()=>5*R(2,12)),mx=Math.max(...v),mn=Math.min(...v);
+  return mk('The bar graph shows runs scored. How many more runs did the top scorer make than the lowest scorer?',mx-mn,[mx,mn,mx+mn,mx-mn+5],'Read the highest and the lowest bar, then subtract.',`Highest = ${mx}, lowest = ${mn}. ${mx} − ${mn} = ${mx-mn}.`,bars(nm,v))}]
+];
+/* ===== State, storage (localStorage with in-memory fallback) ===== */
+let mem={};const st={get(){try{return JSON.parse(localStorage.getItem('mathadv')||'null')||mem}catch(e){return mem}},set(v){mem=v;try{localStorage.setItem('mathadv',JSON.stringify(v))}catch(e){}}};
+const fresh=()=>({name:'',lang:'en',snd:1,coins:0,pts:0,stars:{},acc:{},badges:[],best:0,daily:'',boss:0});
+let S=Object.assign(fresh(),st.get()),G,tmr,T={topics:[0,1,2,3,4,5,6,7],n:10,timer:0,teams:0,sc:[]};
+const save=()=>st.set(S),$a=h=>{$('#app').innerHTML=h;scrollTo(0,0)};
+const tot=()=>Object.values(S.stars).reduce((a,b)=>a+b,0),raja=m=>`<div class="raja"><span aria-hidden="true">🦁</span><p>${m}</p></div>`;
+const open=i=>i==0||(S.stars[i-1]||0)>=1,bossOpen=()=>REG.every((_,i)=>(S.stars[i]||0)>=1);
+let AC;const beep=(f,d=.12,tm=0)=>{if(!S.snd)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();let o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+tm);o.stop(AC.currentTime+tm+d)}catch(e){}};
+function conf(){for(let i=0;i<40;i++){let e=document.createElement('span');e.className='cf';e.textContent=P(['🎉','⭐','✨','🎊']);e.style.left=R(0,95)+'vw';e.style.animationDelay=i*.05+'s';document.body.append(e);setTimeout(()=>e.remove(),3600)}}
+/* ===== Screens ===== */
+function home(){$a(`<div class="hero"><div class="mascot" aria-hidden="true">🦁</div><h1>Maths Adventure</h1><p style="margin:0;font-size:22px">The Lost Kingdom</p><p>${S.name?`Salaam ${esc(S.name)}! The royal treasure is stolen. Ready, Detective?`:'Salaam! I am Raja. What is your name, Detective?'}</p><input aria-label="Your name" placeholder="Type your name" value="${esc(S.name)}" onchange="S.name=this.value.trim();save();home()"><br><br><button class="g" style="font-size:22px;padding:10px 28px" onclick="map()">▶ Play adventure</button></div><div style="text-align:center;margin:14px 0"><span class="chip">⭐ ${tot()}/24</span><span class="chip">🪙 ${S.coins}</span><span class="chip">🏆 ${S.pts}</span></div><div class="grid"><button onclick="prac()">🎯 Practice</button><button class="o" onclick="start('practice',new Date().getDate()%8,5,1)">📅 Daily challenge</button></div><div class="card"><b>Badges</b><p>${S.badges.join(' • ')||'No badges yet. Go and win one!'}</p></div>`)}
+function map(){const N=[[80,590],[255,525],[100,455],[260,390],[95,320],[255,255],[105,190],[245,125],[180,62]];
+ let d='M'+N[0].join(' ');for(let i=1;i<9;i++){let[a,b]=N[i-1],[c,e]=N[i],m=(b+e)/2;d+=`C${a} ${m} ${c} ${m} ${c} ${e}`}
+ let nodes=N.map(([x,y],i)=>{let boss=i==8,o=boss?bossOpen():open(i),r=boss?['Boss','👹','#3b2a5a']:REG[i],s=boss?(S.boss?3:0):(S.stars[i]||0);
+  return`<g class="node" tabindex="${o?0:-1}" role="button" aria-label="${boss?'Boss Battle':r[0]}${o?'':' (locked)'}" ${o?`onclick="start('${boss?'boss':'region'}',${boss?0:i},${boss?15:10})" onkeydown="if(event.key=='Enter'||event.key==' ')this.onclick()"`:''} opacity="${o?1:.55}"><circle cx="${x}" cy="${y}" r="${boss?38:32}" fill="${o?r[2]:'#999'}" stroke="#fff" stroke-width="5"/><text x="${x}" y="${y+11}" font-size="${boss?36:30}" text-anchor="middle">${o?r[1]:'🔒'}</text><text x="${x}" y="${y+56}" font-size="15" font-weight="800" text-anchor="middle" fill="#2a2350" stroke="#fff" stroke-width="4" paint-order="stroke">${boss?'Boss Battle':(i+1)+'. '+r[0]}</text><text x="${x}" y="${y-42}" font-size="17" text-anchor="middle">${'⭐'.repeat(s)}</text></g>`}).join('');
+ $a(`<div class="card">${raja('Choose a region. Get 6 out of 10 right to open the next one!')}</div><div class="mapwrap"><svg viewBox="0 0 360 660" width="100%" role="group" aria-label="Kingdom map"><path d="${d}" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" opacity=".8"/><path d="${d}" fill="none" stroke="#c98a3d" stroke-width="5" stroke-dasharray="2 12" stroke-linecap="round"/><text x="20" y="40" font-size="34">☁️</text><text x="300" y="95" font-size="30">☁️</text><text x="22" y="250" font-size="30">🌲</text><text x="305" y="470" font-size="30">🌳</text><text x="22" y="645" font-size="28">🌴</text><text x="305" y="620" font-size="28">⛰️</text>${nodes}</svg></div>`)}
+function prac(){$a(`<div class="card"><h2>🎯 Practice</h2><p>Pick any topic. No hearts, no pressure.</p><div class="grid">${REG.map((r,i)=>`<button class="o" onclick="start('practice',${i},T.n)">${r[1]} ${r[0]}</button>`).join('')}<button onclick="start('practice','all',T.n)">🎲 Mixed topics</button></div></div>`)}
+function start(mode,r,n,d){G={mode,r,n,i:0,ok:0,hearts:3,streak:0,run:0,bad:0,adj:0,hints:0,d};T.sc=Array(T.teams).fill(0);nq()}
+function nq(){clearInterval(tmr);if(G.i>=G.n)return fin();let m=G.mode,reg=m=='boss'?R(0,7):(m=='practice'&&G.r=='all')?P(T.topics.length?T.topics:[0]):G.r,
+ base=G.i<4?0:G.i<8?1:2,tier=m=='boss'?3:Math.max(0,Math.min(2,base+G.adj));
+ G.reg=reg;G.tier=tier;G.q=P(GEN[reg])(tier>0?1:0);G.lock=0;G.hu=0;G.t0=Date.now();draw()}
+function draw(){let q=G.q,b=G.mode=='boss',tm=T.timer?`<span id="tm" class="big">⏱️ 30</span>`:'',
+ tms=T.teams?`<div class="card"><b>Team ${G.i%T.teams+1}'s turn</b> • ${T.sc.map((s,i)=>`T${i+1}: ${s}`).join(' | ')}</div>`:'';
+ $a(`${tms}<div class="card" style="border-top:12px solid ${REG[G.reg][2]}"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><b>${REG[G.reg][1]} ${REG[G.reg][0]}</b><span>Q ${G.i+1}/${G.n} ${['🟢 Easy','🔵 Medium','🔴 Challenge','👑 Boss'][G.tier]}</span></div><div class="bar" aria-hidden="true"><i style="width:${G.i/G.n*100}%"></i></div><p>🔥 ${G.streak} &nbsp; 🏆 ${S.pts} ${b?`&nbsp; ${'❤️'.repeat(Math.max(0,G.hearts))}${'🖤'.repeat(3-Math.max(0,G.hearts))}`:''} ${tm}</p>${b?`<p>👹 Boss health</p><div class="bar"><i style="width:${100-G.ok/G.n*100}%;background:var(--r)"></i></div>`:''}<p class="big">${q.q}</p>${q.s||''}<div id="ans">${q.t=='num'?`<input id="in" inputmode="decimal" aria-label="Your answer" placeholder="Type your answer" onkeydown="if(event.key=='Enter')ans(this.value)"><br><br><button onclick="ans($('#in').value)">✅ Check</button>`:`<div class="opts">${q.o.map((o,i)=>`<button onclick="ans(this.dataset.v,this)" data-v="${o}"><b>${'ABCD'[i]}</b>${show(o)}</button>`).join('')}</div>`}</div><p><button class="o" onclick="hint()">💡 Hint (−2 points)</button></p><div id="fb" aria-live="polite"></div></div>`);
+ if(T.timer){G.tl=30;tmr=setInterval(()=>{G.tl--;let e=$('#tm');if(e)e.textContent='⏱️ '+G.tl;if(G.tl<=0)ans('')},1000)}}
+function hint(){if(G.lock)return;if(!G.hu){G.hu=1;G.hints++;S.pts=Math.max(0,S.pts-2)}$('#fb').innerHTML=raja('💡 '+G.q.h+(S.lang=='ru'?'<br>🇵🇰 '+RU[G.reg]:''))}
+function ans(v,el){if(G.lock)return;G.lock=1;clearInterval(tmr);let q=G.q,x=String(v).trim().replace('−','-').replace(',','.'),
+ ok=q.t=='num'?x!==''&&Math.abs(parseFloat(x)-q.a)<1e-9:v===q.a,a=S.acc[G.reg]||[0,0],fb;a[1]++;
+ if(ok){a[0]++;G.ok++;G.streak++;G.run++;G.bad=0;let p=10+((Date.now()-G.t0)<8000?5:0)+(G.streak>=3?Math.min(G.streak,5):0);S.pts+=p;S.coins++;if(G.run>=3){G.adj++;G.run=0}
+  if(T.teams)T.sc[G.i%T.teams]+=10;S.best=Math.max(S.best,G.streak);if(G.streak>=10&&!S.badges.includes('🔥 10 Streak'))S.badges.push('🔥 10 Streak');beep(660);beep(880,.15,.12);fb=`✅ Correct! +${p} points`}
+ else{G.streak=0;G.run=0;if(++G.bad>=2){G.adj--;G.bad=0}if(G.mode=='boss')G.hearts--;beep(200,.3);fb=`❌ Not this time. The answer is ${show(q.a)}. Let us learn why!`}
+ S.acc[G.reg]=a;save();
+ document.querySelectorAll('#ans button').forEach(b=>{b.disabled=1;if(b.dataset.v===q.a)b.classList.add('ok');else if(b===el)b.classList.add('no')});
+ $('#fb').innerHTML=`<div class="card" style="background:var(--bg)"><b>${fb}</b>${raja(ok?P(['Shabash! 🎉','Brilliant, Detective!','You are a star!']):P(['Do not worry. Mistakes help us learn!','Almost! Try the next one!']))}<p><b>Step by step:</b> ${q.e}</p>${S.lang=='ru'?`<p>🇵🇰 Yaad rakhein: ${RU[G.reg]}</p>`:''}<button onclick="G.i++;(G.mode=='boss'&&G.hearts<1)?fin():nq()">Next ➡️</button></div>`;$('#fb button').focus()}
+function fin(){clearInterval(tmr);let m=G.mode,ok=G.ok,n=G.n,win,extra='',add=b=>{if(!S.badges.includes(b))S.badges.push(b)};
+ if(m=='region'){let s=ok>=10?3:ok>=8?2:ok>=6?1:0;win=s>0;if(s>(S.stars[G.r]||0))S.stars[G.r]=s;S.coins+=s*10;if(win)add('⭐ First Star');if(win&&!G.hints)add('🧠 No Hints');if(G.r==2&&s==3)add('🍕 Fraction Master');extra='⭐'.repeat(s)||'No star yet. You need 6 correct.'}
+ else if(m=='boss'){win=G.hearts>0;if(win){S.boss=1;add('👑 Boss Slayer')}}
+ else{win=ok/n>=.6;if(G.d&&S.daily!=new Date().toDateString()){S.daily=new Date().toDateString();S.coins+=20;extra='+20 daily coins!'}}
+ save();if(win)conf();
+ $a(`<div class="card" style="text-align:center">${raja(win?(m=='boss'?'You defeated the thief! The royal treasure is safe! 🏆':'Wonderful work, Detective!'):'Good try! Every explorer learns by trying again. Let us practise once more!')}<h2>${ok}/${n} correct</h2><p class="big">${extra}</p><div class="grid">${m=='region'?`<button onclick="start('region',${G.r},10)">🔁 Try again</button>${win&&G.r<7?`<button class="g" onclick="start('region',${G.r+1},10)">➡️ Next region</button>`:''}`:m=='boss'?`<button onclick="start('boss',0,15)">🔁 Fight again</button>${win?`<button class="g" onclick="cert()">🎓 Certificate</button>`:''}`:`<button onclick="prac()">🔁 More practice</button>`}<button class="o" onclick="map()">🗺️ Map</button></div></div>`)}
+function cert(){$a(`<div class="cert"><h1>🏆 Certificate of Bravery</h1><p>This is to certify that</p><h2>${esc(S.name||'Brave Detective')}</h2><p>defeated the thief and saved the royal treasure in<br><b>Maths Adventure – The Lost Kingdom</b></p><p class="big">Score: ${S.pts} points • Stars: ${tot()}/24</p><p>${new Date().toLocaleDateString()}</p></div><p class="np"><button onclick="print()">🖨️ Print certificate</button></p>`)}
+const tp=(i,c)=>{T.topics=c?[...new Set([...T.topics,i])]:T.topics.filter(x=>x!=i)};
+function teacher(){$a(`<div class="card"><h2>👩‍🏫 Teacher panel</h2><p><b>Topics for mixed practice:</b></p>${REG.map((r,i)=>`<label style="display:block;min-height:40px"><input type="checkbox" style="width:24px;min-height:0" ${T.topics.includes(i)?'checked':''} onchange="tp(${i},this.checked)"> ${r[1]} ${r[0]}</label>`).join('')}<p>Questions per practice: <select onchange="T.n=+this.value">${[5,10,15,20].map(n=>`<option ${n==T.n?'selected':''}>${n}</option>`).join('')}</select></p><label><input type="checkbox" style="width:24px;min-height:0" ${T.timer?'checked':''} onchange="T.timer=this.checked?1:0"> Timer (30 seconds per question)</label><p>Class mode: <select onchange="T.teams=+this.value">${[0,2,3,4,5,6].map(n=>`<option value="${n}" ${n==T.teams?'selected':''}>${n?n+' teams':'Off'}</option>`).join('')}</select></p><p>Hints language: <select onchange="S.lang=this.value;save()"><option value="en" ${S.lang=='en'?'selected':''}>English</option><option value="ru" ${S.lang=='ru'?'selected':''}>English + Roman-Urdu</option></select></p></div><div class="card"><h2>📊 Progress report – ${esc(S.name||'Student')}</h2><table><tr><th>Topic</th><th>Accuracy</th><th>Stars</th></tr>${REG.map((r,i)=>{let a=S.acc[i]||[0,0],p=a[1]?Math.round(a[0]/a[1]*100):null,w=p!==null&&p<60;return`<tr><td>${r[1]} ${r[0]}</td><td class="${w?'weak':''}">${p===null?'—':p+'%'}${w?' ⚠️ weak':''}</td><td>${'⭐'.repeat(S.stars[i]||0)||'—'}</td></tr>`}).join('')}</table><p class="np"><button onclick="print()">🖨️ Print report</button> <button class="o" onclick="if(confirm('Delete all progress?')){S=fresh();save();home()}">Reset progress</button></p></div>`)}
+/* ===== Navigation ===== */
+$('#nav').innerHTML=`<button onclick="home()">🏠 Home</button><button onclick="map()">🗺️ Map</button><button onclick="prac()">🎯 Practice</button><button onclick="teacher()">👩‍🏫 Teacher</button><button aria-label="Sound on or off" onclick="S.snd=1-S.snd;save();this.textContent=S.snd?'🔊':'🔇'">${S.snd?'🔊':'🔇'}</button><button aria-label="Language" onclick="S.lang=S.lang=='en'?'ru':'en';save();this.textContent=S.lang=='ru'?'EN+RU':'EN'">${S.lang=='ru'?'EN+RU':'EN'}</button>`;
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+home();
+</script></body></html>
