@@ -30,8 +30,7 @@ jobs:
         run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee ../build.log
       - name: Show the error if the build failed
         if: failure()
-        run: echo "::error::$(tail -n 25 build.log | cut -c1-200 | tr '
-' '|')"
+        run: echo "::error::$(tail -n 25 build.log | cut -c1-200 | tr '\n' '|')"
       - name: Rename the APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk MathsAdventure.apk
       - uses: actions/upload-artifact@v4
